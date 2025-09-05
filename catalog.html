@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JM.ELECTRONICA - Catálogo Simple</title>
+    <!-- Incluye Tailwind CSS para un diseño moderno y responsivo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        .rounded-all {
+            border-radius: 12px;
+        }
+        /* Ocultar elementos en pantallas pequeñas */
+        .hidden-sm {
+            display: none;
+        }
+        @media (min-width: 640px) {
+            .hidden-sm {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+<div id="app" class="container">
+    <header class="flex justify-between items-center mb-6 p-4 rounded-all shadow-md bg-white">
+        <div class="flex items-center space-x-4">
+            <h1 class="text-3xl font-bold text-gray-900">JM.ELECTRONICA</h1>
+        </div>
+        <div class="flex space-x-2">
+            <button id="view-catalog-btn" class="p-3 rounded-full bg-blue-500 text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-list"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+            </button>
+            <button id="view-cart-btn" class="p-3 rounded-full bg-yellow-500 text-white relative">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shopping-cart"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                <span id="cart-count" class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full hidden"></span>
+            </button>
+            <button id="admin-btn" class="p-3 rounded-full bg-gray-500 text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            </button>
+        </div>
+    </header>
+
+    <main id="main-content">
+        <!-- El contenido del catálogo, carrito o panel de administración se carga aquí -->
+    </main>
+</div>
+
+<!-- Modal para mostrar mensajes -->
+<div id="modal-container" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-all shadow-lg p-6 max-w-sm w-full text-center">
+        <p id="modal-message" class="text-lg font-semibold mb-4"></p>
+        <button id="close-modal-btn" class="bg-blue-500 text-white py-2 px-6 rounded-all font-bold hover:bg-blue-600">
+            Aceptar
+        </button>
+    </div>
+</div>
+
+<!-- El script JavaScript para la lógica de la aplicación -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- 1. CONFIGURACIÓN INICIAL ---
+        // Contraseña simple para el acceso de administrador. ¡Cambia esta contraseña!
+        const ADMIN_PASSWORD = 'mi_clave_secreta'; 
+        
+        // Las categorías de tus productos
+        const categories = [
+            'TODOS', 'CARGADORES', 'CABLES', 'PARLANTES', 'HOGAR',
+            'AURICULARES INALAMBRICOS', 'AURICULARES VINCHA', 'ACCESORIOS MUJER',
+            'ACCESORIOS HOMBRE', 'VARIOS', 'JUGUETES', 'VELADORES', 'NOVEDADES'
+        ];
+
+        // --- 2. GESTIÓN DE DATOS ---
+        // Productos de ejemplo que se cargan por defecto
+        const defaultProducts = [
+            { id: '1', name: 'Cable USB-C a USB-A', price: 15.50, stock: 50, image: 'https://placehold.co/600x400/D1D5DB/4B5563?text=Cable+USB', category: 'CABLES', isActive: true },
+            { id: '2', name: 'Auriculares Inalámbricos', price: 75.00, stock: 25, image: 'https://placehold.co/600x400/D1D5DB/4B5563?text=Auriculares', category: 'AURICULARES INALAMBRICOS', isActive: true },
+            { id: '3', name: 'Parlante Bluetooth', price: 120.00, stock: 15, image: 'https://placehold.co/600x400/D1D5DB/4B5563?text=Parlante', category: 'PARLANTES', isActive: true },
+            { id: '4', name: 'Cargador Portátil 10000mAh', price: 90.00, stock: 30, image: 'https://placehold.co/600x400/D1D5DB/4B5563?text=Power+Bank', category: 'CARGADORES', isActive: true }
+        ];
+
+        // Carga los datos de los productos y el carrito desde el almacenamiento del navegador
+        let products = JSON.parse(localStorage.getItem('products')) || defaultProducts;
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let isAdmin = false;
+
+        // Guarda los productos en el almacenamiento local
+        const saveProducts = () => {
+            localStorage.setItem('products', JSON.stringify(products));
+        };
+
+        // Guarda el carrito en el almacenamiento local
+        const saveCart = () => {
+            localStorage.setItem('cart', JSON.stringify(cart));
+        };
+
+        // --- 3. ELEMENTOS DE LA INTERFAZ ---
+        const mainContent = document.getElementById('main-content');
+        const cartCountSpan = document.getElementById('cart-count');
+        const modalContainer = document.getElementById('modal-container');
+        const modalMessage = document.getElementById('modal-message');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const viewCatalogBtn = document.getElementById('view-catalog-btn');
+        const viewCartBtn = document.getElementById('view-cart-btn');
+        const adminBtn = document.getElementById('admin-btn');
+        
+        // --- 4. FUNCIONES AUXILIARES ---
+        const showModal = (message) => {
+            modalMessage.textContent = message;
+            modalContainer.classList.remove('hidden');
+            modalContainer.classList.add('flex');
+        };
+
+        const hideModal = () => {
+            modalContainer.classList.remove('flex');
+            modalContainer.classList.add('hidden');
+        };
+
+        const updateCartCount = () => {
+            const count = cart.reduce((total, item) => total + item.quantity, 0);
+            if (count > 0) {
+                cartCountSpan.textContent = count;
+                cartCountSpan.classList.remove('hidden');
+            } else {
+                cartCountSpan.classList.add('hidden');
+            }
+        };
+        
+        // Función para descargar el catálogo actualizado
+        const downloadCatalog = () => {
+            // 1. Obtener el HTML actual de toda la página
+            let htmlContent = document.documentElement.outerHTML;
+
+            // 2. Crear una representación JSON del estado actual de los productos
+            const currentProductsJson = JSON.stringify(products, null, 4);
+            
+            // 3. Reemplazar la lista de productos por la lista actualizada
+            // Se usa una expresión regular para encontrar el marcador y reemplazar solo esa parte
+            const placeholderRegex = /const defaultProducts = \[[\s\S]*?\];/;
+            const replacement = `const defaultProducts = ${currentProductsJson};`;
+
+            htmlContent = htmlContent.replace(placeholderRegex, replacement);
+
+            // 4. Crear un Blob (archivo) con el contenido HTML actualizado
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            
+            // 5. Configurar el enlace de descarga y simular un clic
+            a.href = url;
+            a.download = 'catalog.html';
+            document.body.appendChild(a);
+            a.click();
+            
+            // 6. Limpiar el objeto URL y el elemento 'a'
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showModal("¡El catálogo actualizado se ha descargado!");
+        };
+
+        const renderCatalog = (category = 'TODOS') => {
+            mainContent.innerHTML = '';
+            const categorySelector = `
+                <div class="flex justify-center mb-6">
+                    <select id="category-selector" class="p-2 border rounded-all shadow-sm">
+                        ${categories.map(cat => `<option value="${cat}" ${cat === category ? 'selected' : ''}>${cat}</option>`).join('')}
+                    </select>
+                </div>
+            `;
+            const filteredProducts = products.filter(p => p.isActive && (category === 'TODOS' || p.category === category));
+            const productsGrid = `
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    ${filteredProducts.length > 0 ? filteredProducts.map(product => `
+                        <div class="bg-white rounded-all shadow-md overflow-hidden transform hover:scale-105 transition-transform">
+                            <img src="${product.image}" alt="${product.name}" class="w-full h-48 object-cover object-center" onerror="this.onerror=null;this.src='https://placehold.co/600x400/D1D5DB/4B5563?text=Sin+Imagen';" />
+                            <div class="p-4">
+                                <h3 class="text-xl font-semibold mb-2">${product.name}</h3>
+                                <p class="text-gray-600 mb-2">$ ${product.price.toFixed(2)}</p>
+                                <p class="text-sm font-medium" style="color: ${product.stock > 0 ? '#10B981' : '#EF4444'}">
+                                    Stock: ${product.stock > 0 ? `${product.stock} disponibles` : 'Agotado'}
+                                </p>
+                                <button data-id="${product.id}"
+                                    class="w-full mt-4 p-3 rounded-all font-bold transition-colors ${product.stock > 0 ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}"
+                                    ${product.stock <= 0 ? 'disabled' : ''}>
+                                    Agregar al carrito
+                                </button>
+                            </div>
+                        </div>
+                    `).join('') : '<div class="md:col-span-3 text-center text-gray-500 text-lg">No hay productos disponibles.</div>'}
+                </div>
+            `;
+            mainContent.innerHTML = categorySelector + productsGrid;
+            document.getElementById('category-selector').addEventListener('change', (e) => {
+                renderCatalog(e.target.value);
+            });
+            mainContent.querySelectorAll('button[data-id]').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const productId = e.target.dataset.id;
+                    const product = products.find(p => p.id === productId);
+                    if (product) {
+                        addToCart(product);
+                    }
+                });
+            });
+        };
+
+        const addToCart = (product) => {
+            const existingItem = cart.find(item => item.id === product.id);
+            if (existingItem) {
+                existingItem.quantity++;
+            } else {
+                cart.push({ ...product, quantity: 1 });
+            }
+            saveCart();
+            updateCartCount();
+            showModal(`${product.name} agregado al carrito.`);
+        };
+
+        const renderCart = () => {
+            mainContent.innerHTML = '';
+            if (cart.length === 0) {
+                mainContent.innerHTML = `<div class="text-center text-gray-500 text-lg">El carrito está vacío.</div>`;
+                return;
+            }
+            const cartItemsHtml = cart.map(item => `
+                <div class="bg-white rounded-all p-4 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="font-semibold">${item.name}</p>
+                        <p class="text-sm text-gray-600">$ ${item.price.toFixed(2)} c/u</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button data-id="${item.id}" data-change="-1" class="p-2 bg-gray-200 rounded-full hover:bg-gray-300 transition-colors">-</button>
+                        <span class="font-bold">${item.quantity}</span>
+                        <button data-id="${item.id}" data-change="1" class="p-2 bg-gray-200 rounded-full hover:bg-gray-300 transition-colors">+</button>
+                    </div>
+                    <div class="font-bold text-lg">$ ${(item.price * item.quantity).toFixed(2)}</div>
+                </div>
+            `).join('');
+            const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            const totalHtml = `
+                <div class="mt-6 p-4 bg-gray-200 rounded-all font-bold text-xl flex justify-between">
+                    <span>Total:</span>
+                    <span>$ ${total.toFixed(2)}</span>
+                </div>
+                <div class="mt-6 flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                    <button id="whatsapp-order-btn" class="flex-1 bg-green-500 text-white p-4 rounded-all font-bold hover:bg-green-600 transition-colors text-center">
+                        Enviar pedido por WhatsApp
+                    </button>
+                    <button id="email-order-btn" class="flex-1 bg-red-500 text-white p-4 rounded-all font-bold hover:bg-red-600 transition-colors text-center">
+                        Enviar pedido por Email
+                    </button>
+                </div>
+            `;
+            
+            mainContent.innerHTML = `
+                <div class="space-y-4">
+                    ${cartItemsHtml}
+                    ${totalHtml}
+                </div>
+            `;
+            mainContent.querySelectorAll('button[data-change]').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const productId = e.target.dataset.id;
+                    const change = parseInt(e.target.dataset.change);
+                    const item = cart.find(i => i.id === productId);
+                    if (item) {
+                        item.quantity += change;
+                        if (item.quantity <= 0) {
+                            cart = cart.filter(i => i.id !== productId);
+                        }
+                    }
+                    saveCart();
+                    updateCartCount();
+                    renderCart();
+                });
+            });
+            document.getElementById('whatsapp-order-btn').addEventListener('click', () => {
+                const message = encodeURIComponent(generateOrderMessage());
+                window.open(`https://wa.me/?text=${message}`, '_blank');
+            });
+            document.getElementById('email-order-btn').addEventListener('click', () => {
+                const subject = encodeURIComponent('Pedido desde JM.ELECTRONICA');
+                const body = encodeURIComponent(generateOrderMessage());
+                window.open(`mailto:?subject=${subject}&body=${body}`, '_blank');
+            });
+        };
+
+        const generateOrderMessage = () => {
+            let message = `¡Hola! Me gustaría hacer un pedido:\n\n`;
+            cart.forEach(item => {
+                message += `${item.quantity} x ${item.name} - $${(item.price * item.quantity).toFixed(2)}\n`;
+            });
+            const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            message += `\nTotal: $${total.toFixed(2)}`;
+            return message;
+        };
+
+        const renderAdmin = () => {
+            if (!isAdmin) {
+                const password = prompt("Ingresa la contraseña de administrador:");
+                if (password === ADMIN_PASSWORD) {
+                    isAdmin = true;
+                    showModal("Inicio de sesión de administrador exitoso.");
+                } else {
+                    showModal("Contraseña incorrecta.");
+                    return;
+                }
+            }
+
+            mainContent.innerHTML = `
+                <div class="space-y-8">
+                    <h2 class="text-2xl font-bold text-center">Panel de Administración</h2>
+                    <div class="p-6 bg-white rounded-all shadow-md">
+                        <h3 class="text-xl font-semibold mb-4">Agregar Nuevo Producto</h3>
+                        <form id="add-product-form" class="space-y-4">
+                            <input type="text" name="name" placeholder="Nombre del Producto" class="w-full p-2 border rounded-all" required />
+                            <select name="category" class="w-full p-2 border rounded-all" required>
+                                ${categories.filter(cat => cat !== 'TODOS').map(cat => `<option value="${cat}">${cat}</option>`).join('')}
+                            </select>
+                            <input type="number" name="price" placeholder="Precio" step="0.01" class="w-full p-2 border rounded-all" required />
+                            <input type="number" name="stock" placeholder="Stock" class="w-full p-2 border rounded-all" required />
+                            <input type="text" name="image" placeholder="URL de la Imagen" class="w-full p-2 border rounded-all" required />
+                            <button type="submit" class="w-full bg-blue-500 text-white p-3 rounded-all font-bold hover:bg-blue-600 transition-colors">
+                                Agregar Producto
+                            </button>
+                        </form>
+                    </div>
+                    <div class="p-6 bg-white rounded-all shadow-md">
+                        <h3 class="text-xl font-semibold mb-4">Productos Existentes</h3>
+                        <ul id="product-list" class="space-y-4">
+                            ${products.length > 0 ? products.map(product => `
+                                <li class="p-4 border rounded-all flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
+                                    <div class="flex-1">
+                                        <h4 class="font-bold">${product.name}</h4>
+                                        <p class="text-sm text-gray-600">Categoría: ${product.category || 'Sin categoría'}</p>
+                                        <p class="text-sm text-gray-600">Precio: $${product.price.toFixed(2)} | Stock: ${product.stock}</p>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button data-id="${product.id}" data-action="toggle-active"
+                                                class="py-2 px-4 rounded-all font-bold ${product.isActive ? 'bg-red-500 text-white' : 'bg-green-500 text-white'} transition-colors">
+                                            ${product.isActive ? 'Desactivar' : 'Activar'}
+                                        </button>
+                                        <button data-id="${product.id}" data-action="delete" class="py-2 px-4 rounded-all font-bold bg-gray-500 text-white hover:bg-gray-600 transition-colors">
+                                            Eliminar
+                                        </button>
+                                    </div>
+                                </li>
+                            `).join('') : '<p class="text-center text-gray-500">No hay productos para administrar.</p>'}
+                        </ul>
+                    </div>
+                    <div class="p-6 bg-white rounded-all shadow-md text-center">
+                        <h3 class="text-xl font-semibold mb-4">Compartir Catálogo</h3>
+                        <p class="text-gray-600 mb-4">Descarga el archivo con los cambios para subirlo y compartirlo con tus clientes.</p>
+                        <button id="download-catalog-btn" class="w-full bg-green-500 text-white p-3 rounded-all font-bold hover:bg-green-600 transition-colors">
+                            Descargar Catálogo Actualizado
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('add-product-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const form = e.target;
+                const newProduct = {
+                    id: Date.now().toString(),
+                    name: form.name.value,
+                    price: parseFloat(form.price.value),
+                    stock: parseInt(form.stock.value),
+                    image: form.image.value,
+                    category: form.category.value,
+                    isActive: true
+                };
+                products.unshift(newProduct);
+                saveProducts();
+                renderAdmin();
+                showModal("Producto agregado con éxito.");
+            });
+            document.getElementById('product-list').addEventListener('click', (e) => {
+                const button = e.target.closest('button[data-action]');
+                if (button) {
+                    const productId = button.dataset.id;
+                    const action = button.dataset.action;
+                    if (action === 'delete') {
+                        products = products.filter(p => p.id !== productId);
+                        showModal("Producto eliminado con éxito.");
+                    } else if (action === 'toggle-active') {
+                        const product = products.find(p => p.id === productId);
+                        if (product) {
+                            product.isActive = !product.isActive;
+                            showModal(`Producto ${product.isActive ? 'activado' : 'desactivado'}.`);
+                        }
+                    }
+                    saveProducts();
+                    renderAdmin();
+                }
+            });
+            document.getElementById('download-catalog-btn').addEventListener('click', downloadCatalog);
+        };
+
+        viewCatalogBtn.addEventListener('click', () => {
+            renderCatalog();
+        });
+        viewCartBtn.addEventListener('click', () => {
+            renderCart();
+        });
+        adminBtn.addEventListener('click', () => {
+            renderAdmin();
+        });
+        closeModalBtn.addEventListener('click', hideModal);
+
+        updateCartCount();
+        renderCatalog();
+    });
+</script>
+
+</body>
+</html>
