@@ -124,14 +124,12 @@
         .tabs { 
             display: flex; justify-content: center; 
             margin-bottom: 20px; 
-            
-            /* ESTILOS PARA HACERLO FIJO: */
-            position: sticky; /* Sticky es más suave que fixed */
-            top: 0; /* Lo mantiene anclado al borde superior */
-            z-index: 10; /* Asegura que esté siempre por encima del contenido */
-            background-color: var(--color-fondo); /* Fondo suave */
-            padding: 10px 0; /* Espacio arriba y abajo */
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15); /* Sombra para que se note flotante */
+            position: sticky; 
+            top: 0; 
+            z-index: 10; 
+            background-color: var(--color-fondo); 
+            padding: 10px 0; 
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15); 
         }
         .tab-button {
             padding: 10px 20px; cursor: pointer; background-color: var(--color-primario);
@@ -147,15 +145,28 @@
             color: var(--color-texto); text-transform: uppercase;
         }
         
+        /* ESTILO PARA PRODUCTOS EN ADMINISTRACIÓN (AGREGADO PARA SUSPENDER) */
         .admin-producto-item {
             display: flex; justify-content: space-between; align-items: center;
             padding: 10px; border: 1px solid var(--color-secundario);
             margin-bottom: 5px; border-radius: 4px; background-color: var(--color-primario);
+            transition: border-left 0.3s ease; /* Transición para el borde suspendido */
         }
+        .admin-producto-item.admin-producto-suspendido {
+             border-left: 5px solid #FFA500; /* Borde NARANJA para sin stock */
+        }
+        
         .admin-producto-item img { width: 50px; height: 50px; object-fit: cover; margin-right: 10px; border-radius: 4px; }
         .admin-producto-info { flex-grow: 1; }
-        .admin-producto-acciones button { margin-left: 5px; padding: 5px 10px; font-size: 0.8em; background-color: #F08080; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .admin-producto-acciones button { margin-left: 5px; padding: 5px 10px; font-size: 0.8em; border: none; border-radius: 4px; cursor: pointer; }
+        .admin-producto-acciones button.btn-eliminar { background-color: #F08080; color: white; }
         .admin-producto-acciones button.btn-modificar { background-color: var(--color-secundario); color: var(--color-texto); }
+        .admin-producto-acciones button.btn-suspender { 
+            /* El color se maneja en JS, pero añadimos margen */
+            margin-right: 5px;
+            color: white; 
+            font-weight: bold;
+        }
         
         #buscador-admin { margin-bottom: 15px; padding: 10px; border: 2px solid var(--color-secundario); border-radius: 5px; width: 100%; box-sizing: border-box; color: var(--color-texto); text-transform: uppercase; }
         .lista-categorias-admin { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
@@ -167,7 +178,7 @@
         @media (max-width: 480px) { 
             .producto-card { 
                 width: 100%; 
-                padding: 10px 5px; /* ¡IMPORTANTE! Reduce el relleno lateral a 5px para maximizar la foto */
+                padding: 10px 5px; 
             } 
             header h1 { font-size: 1.8em; } 
             #resumen-carrito button { width: 100%; margin-top: 10px; } 
@@ -282,72 +293,83 @@
 
     <script>
         // =================================================================
-        // 1. GESTIÓN DE DATOS Y CARGA (CORREGIDO: AHORA LEYENDO JSON)
+        // 1. GESTIÓN DE DATOS Y CARGA (VERSIÓN FINAL PARA SERVIDOR/GITHUB)
         // =================================================================
         
-        // Se inicializan como arrays vacíos, serán poblados por fetch.
         let categorias = [];
         let productos = [];
-
+        
         let carrito = JSON.parse(localStorage.getItem('carritoMM')) || []; 
         const CLAVE_ADMIN = "MM2025"; 
 
-        /**
-         * Función asíncrona para cargar los datos de productos y categorías 
-         * desde los archivos JSON en el servidor (GitHub Pages).
-         */
+        // Producto de prueba para mostrar cuando la carga falla
+        const PRODUCTO_CARGA_FALLIDA = { 
+            id: 9999, 
+            nombre: "CARGADOR DE PRUEBA (CARGA FALLIDA)", 
+            precio: 1.00, 
+            foto: "https://placehold.co/300x300/DC143C/FFFFFF?text=CARGA+FALLIDA", 
+            categoria: "PRUEBA",
+            suspendido: false // Se añade el campo suspendido
+        };
+        
         async function cargarDatosIniciales() {
-            document.getElementById('loading-message').textContent = 'CARGANDO PRODUCTOS...';
-            document.getElementById('loading-message').style.display = 'block';
-
             try {
-                // Ejecutar las dos peticiones fetch en paralelo
+                document.getElementById('loading-message').style.display = 'block';
+                
                 const [productosResponse, categoriasResponse] = await Promise.all([
-                    fetch('productos.json'),
-                    fetch('categorias.json')
+                    fetch('./productos.json'),
+                    fetch('./categorias.json')
                 ]);
 
-                if (!productosResponse.ok || !categoriasResponse.ok) {
-                    throw new Error('Error al cargar uno o ambos archivos JSON. Código de estado HTTP no OK.');
+                if (!productosResponse.ok) {
+                    throw new Error("No se pudo cargar productos.json");
+                }
+                if (!categoriasResponse.ok) {
+                    throw new Error("No se pudo cargar categorias.json");
                 }
 
-                // Parsear las respuestas JSON
                 const productosData = await productosResponse.json();
-                const categoriasData = await categoriasResponse.json();
+                
+                // Asegurar que todos los productos tienen el campo 'suspendido'
+                productos = productosData.map(p => ({ 
+                    ...p, 
+                    suspendido: p.suspendido === undefined ? false : p.suspendido 
+                }));
+                categorias = await categoriasResponse.json();
 
-                // Asignar los datos a las variables globales
-                productos = productosData;
-                categorias = categoriasData;
-
-                // Inicializar la interfaz después de cargar los datos
+            } catch (error) {
+                console.error("Error al cargar datos iniciales. Usando producto de prueba:", error);
+                
+                // Si la carga falla, se inicializa con el producto de prueba y la categoría PRUEBA
+                productos = [PRODUCTO_CARGA_FALLIDA];
+                categorias = ["PRUEBA"];
+                mostrarMensaje("AVISO: No se encontraron los archivos JSON. Usa el panel Administrador para crearlos y descargarlos.");
+            } finally {
+                // Inicializa la aplicación con los datos cargados o de prueba
                 renderizarFiltros(); 
                 filtrarProductos('TODOS');
                 renderizarCarrito();
-                
-            } catch (error) {
-                console.error("No se pudieron cargar los datos de JSON:", error);
-                // Mostrar un mensaje de error claro al usuario
-                document.getElementById('loading-message').style.color = 'red';
-                document.getElementById('loading-message').textContent = '¡ERROR AL CARGAR PRODUCTOS! Verifique que los archivos JSON existen y son válidos. Detalles en la consola.';
-
-            } finally {
-                // Ocultar el mensaje de carga solo si no hubo un error de visualización
-                if (document.getElementById('loading-message').style.color !== 'red') {
-                    document.getElementById('loading-message').style.display = 'none';
-                }
+                document.getElementById('loading-message').style.display = 'none';
             }
         }
 
-
         // =================================================================
-        // 2. LÓGICA DE DESCARGA DE JSON
+        // 2. LÓGICA DE DESCARGA DE JSON (ACTUALIZADA CON CAMPO SUSPENDIDO)
         // =================================================================
 
         const descargarJSON = (tipo) => {
             let datos, nombreArchivo;
             
             if (tipo === 'productos') {
-                datos = productos.sort((a, b) => a.id - b.id);
+                 // Asegura que todos los productos tienen el campo suspendido al descargar
+                datos = productos.map(p => ({
+                    id: p.id,
+                    nombre: p.nombre,
+                    precio: p.precio,
+                    foto: p.foto,
+                    categoria: p.categoria,
+                    suspendido: p.suspendido || false // Añade el estado de suspensión
+                })).sort((a, b) => a.id - b.id);
                 nombreArchivo = "productos.json";
             } else {
                 datos = categorias.sort();
@@ -413,27 +435,31 @@
         };
 
         // =================================================================
-        // 4. TIENDA Y FILTRADO (AHORA CON SELECT)
+        // 4. TIENDA Y FILTRADO (AHORA FILTRA SUSPENDIDOS)
         // =================================================================
         
         const renderizarProductos = (productosParaMostrar = productos, filtroActivo = 'TODOS') => {
             const productosSeccion = document.getElementById('productos-seccion');
             if (!productosSeccion) return; 
 
-            // Se mantiene el h2 y se añade el select abajo, por lo que solo se reemplaza el contenido interno
+            // FILTRO CLAVE: NO MOSTRAR PRODUCTOS SUSPENDIDOS EN LA TIENDA
+            const productosParaMostrarFiltrados = productosParaMostrar.filter(p => !p.suspendido);
+            
             const selectFiltrosElement = productosSeccion.querySelector('#select-filtros-tienda');
             const selectFiltrosHTML = selectFiltrosElement ? selectFiltrosElement.outerHTML : '';
 
-
             productosSeccion.innerHTML = '<h2>🛍️ NUESTROS PRODUCTOS</h2>' + selectFiltrosHTML + '<div id="loading-message" style="display:none"></div>';
 
-
-            if (productosParaMostrar.length === 0 && filtroActivo !== 'TODOS') {
-                productosSeccion.innerHTML += `<p style="text-align: center; font-style: italic;">No hay productos para mostrar en la categoría "${filtroActivo}".</p>`;
+            if (productosParaMostrarFiltrados.length === 0) {
+                 // Mensaje si no hay productos activos
+                const mensaje = filtroActivo !== 'TODOS' 
+                    ? `No hay productos activos para mostrar en la categoría "${filtroActivo}".` 
+                    : `No hay productos activos para mostrar.`;
+                productosSeccion.innerHTML += `<p style="text-align: center; font-style: italic;">${mensaje}</p>`;
                 return;
             }
 
-            const categoriasProductos = productosParaMostrar.reduce((acc, producto) => {
+            const categoriasProductos = productosParaMostrarFiltrados.reduce((acc, producto) => {
                 const categoriaNombre = producto.categoria || 'SIN CATEGORÍA';
                 if (!acc[categoriaNombre]) acc[categoriaNombre] = [];
                 acc[categoriaNombre].push(producto);
@@ -468,8 +494,12 @@
 
             let htmlOptions = `<option value="TODOS">TODOS LOS PRODUCTOS</option>`;
             
-            // Obtenemos las categorías únicas de los productos y las ordenamos
-            const categoriasUnicas = new Set(productos.map(p => p.categoria).filter(c => c && c.trim() !== ''));
+            // Usamos las categorías de los productos activos
+            const categoriasUnicas = new Set(productos
+                .filter(p => !p.suspendido) 
+                .map(p => p.categoria)
+                .filter(c => c && c.trim() !== '')
+            );
             const categoriasOrdenadas = Array.from(categoriasUnicas).sort();
 
             categoriasOrdenadas.forEach(cat => {
@@ -477,16 +507,15 @@
             });
             
             selectFiltros.innerHTML = htmlOptions;
-            // Asegura que al iniciar, el select esté en "TODOS"
             selectFiltros.value = 'TODOS';
         };
 
-        // Función de filtrado simplificada para recibir el valor del select
         const filtrarProductos = (categoria) => {
             let productosFiltrados = [];
             if (categoria === 'TODOS') {
                 productosFiltrados = productos;
             } else {
+                // Filtra por categoría, luego renderizarProductos oculta los suspendidos
                 productosFiltrados = productos.filter(p => p.categoria === categoria);
             }
 
@@ -497,15 +526,19 @@
         // =================================================================
         // 5. CARRITO
         // =================================================================
-
+        
         const agregarAlCarrito = (productoId) => {
             const itemEnCarrito = carrito.find(item => item.id === productoId);
             if (itemEnCarrito) {
                 itemEnCarrito.cantidad++;
             } else {
                 const producto = productos.find(p => p.id === productoId);
-                if (producto) {
+                // Validación extra: no permitir agregar si está suspendido (aunque no debería verse en la tienda)
+                if (producto && !producto.suspendido) {
                     carrito.push({ id: producto.id, nombre: producto.nombre, precio: producto.precio, cantidad: 1 });
+                } else if (producto && producto.suspendido) {
+                    mostrarMensaje("PRODUCTO SIN STOCK TEMPORALMENTE.");
+                    return;
                 }
             }
             guardarCarrito();
@@ -526,12 +559,6 @@
                 carrito.forEach(item => {
                     const subtotal = item.precio * item.cantidad;
                     total += subtotal;
-                    
-                    // Buscamos el producto para obtener la foto (si es que la queremos)
-                    // Si se añade la imagen en un futuro, se modificaría esta sección.
-                    // const productoOriginal = productos.find(p => p.id === item.id);
-                    // const fotoUrl = productoOriginal ? productoOriginal.foto : '';
-
                     htmlContent += `
                         <div class="carrito-item">
                             <span class="item-nombre">${item.nombre}</span>
@@ -574,15 +601,9 @@
             });
         };
 
-        // FUNCIÓN FINAL VERIFICADA CON EL MENSAJE SOLICITADO
+        // FUNCIÓN DE WHATSAPP CON FORMATO CORREGIDO
         const generarMensajeWhatsApp = () => {
             const inputNombre = document.getElementById('nombre-cliente-whatsapp');
-            
-            if (!inputNombre) {
-                mostrarMensaje("ERROR: EL CAMPO DE NOMBRE NO ESTÁ DISPONIBLE. RECARGUE LA PÁGINA."); 
-                return;
-            }
-
             const nombreCliente = inputNombre.value.trim().toUpperCase();
 
             if (carrito.length === 0) { mostrarMensaje("EL CARRITO ESTÁ VACÍO."); return; }
@@ -599,13 +620,12 @@
             carrito.forEach(item => {
                 const subtotal = item.precio * item.cantidad;
                 total += subtotal;
-                // CORRECCIÓN DE FORMATO: Dos líneas para mejor legibilidad en WhatsApp
-                mensaje += `* ${item.nombre} (x${item.cantidad})\n  - SUBT: $${subtotal.toFixed(2)}\n`; 
+                // CORRECCIÓN CLAVE: Salto de línea después del subtotal y * al inicio
+                mensaje += `- ${item.nombre} (x${item.cantidad}) - SUBT: $${subtotal.toFixed(2)}\n`; 
             });
             
             mensaje += `\nTOTAL DE LA COMPRA: $${total.toFixed(2)}`;
-            // MENSAJE FINAL SOLICITADO
-            mensaje += "\n\nGRACIAS POR TU COMPRA! NOS COMUNICAREMOS PARA CONFIRMAR STOCK Y ENTREGA."; 
+            mensaje += "\n\nGRACIAS POR TU COMPRA! NOS COMUNICAREMOS PRONTO PARA CONFIRMAR STOCK Y COORDINAR LA ENTREGA."; 
             
             const numeroTelefono = "543571536378"; 
             window.open(`https://wa.me/${numeroTelefono}?text=${encodeURIComponent(mensaje)}`, '_blank');
@@ -613,13 +633,12 @@
 
 
         // =================================================================
-        // 6. ADMINISTRACIÓN
+        // 6. ADMINISTRACIÓN (CON LÓGICA DE SUSPENDER)
         // =================================================================
         
         const renderizarSelectCategorias = (categoriaActual = '') => {
             const selectCategoria = document.getElementById('producto-categoria');
             let htmlOptions = '<option value="">SELECCIONE CATEGORÍA</option>';
-            // Asegúrate de que las categorías se cargan de la variable global
             categorias.forEach(cat => {
                 const selected = cat === categoriaActual ? 'selected' : '';
                 htmlOptions += `<option value="${cat}" ${selected}>${cat}</option>`;
@@ -631,7 +650,8 @@
         const renderizarListaAdminCategorias = () => {
             const listaAdmin = document.getElementById('lista-categorias-admin');
             let htmlContent = '';
-            categorias.forEach(cat => {
+            // Aseguramos que las categorías se muestren ordenadas
+            categorias.sort().forEach(cat => {
                 htmlContent += `<div class="categoria-tag">${cat} <button onclick="eliminarCategoria('${cat}')" class="btn-eliminar-categoria">X</button></div>`;
             });
             listaAdmin.innerHTML = htmlContent;
@@ -646,8 +666,9 @@
             if (categorias.includes(nuevaCat)) { mostrarMensaje("YA EXISTE."); return; }
 
             categorias.push(nuevaCat);
+            categorias.sort(); // Reordenar al agregar
             renderizarSelectCategorias(); 
-            renderizarFiltros(); // Actualiza el select de la tienda
+            renderizarFiltros(); 
             inputCategoria.value = '';
             mostrarMensaje("CATEGORÍA AGREGADA (RECUERDA DESCARGAR JSON).");
         };
@@ -662,7 +683,7 @@
                     categorias = categorias.filter(cat => cat !== catAEliminar);
                     productos.forEach(p => { if (p.categoria === catAEliminar) p.categoria = ''; });
                     renderizarSelectCategorias(); 
-                    renderizarFiltros(); // Actualiza el select de la tienda
+                    renderizarFiltros(); 
                     filtrarYRenderizarProductos(); 
                     renderizarProductos(); 
                     mostrarMensaje("CATEGORÍA ELIMINADA. DESCARGA LOS JSON PARA GUARDAR.");
@@ -670,25 +691,63 @@
             });
         };
 
+        // FUNCIÓN PARA TOGGLE DEL ESTADO SUSPENDIDO (NUEVO)
+        const suspenderProducto = (id) => {
+            const index = productos.findIndex(p => p.id === id);
+            // El producto de ID 9999 es el de prueba de carga fallida, no se puede suspender.
+            if (index !== -1 && id !== 9999) { 
+                const nuevoEstado = !productos[index].suspendido;
+                const nombreProducto = productos[index].nombre;
+                
+                mostrarConfirmacion(`¿ESTÁ SEGURO DE ${nuevoEstado ? 'MARCAR SIN STOCK' : 'ACTIVAR'} EL PRODUCTO "${nombreProducto}"?`, (confirmado) => {
+                    if (confirmado) {
+                        productos[index].suspendido = nuevoEstado;
+                        filtrarYRenderizarProductos(); // Actualiza el panel Admin
+                        renderizarFiltros(); // Actualiza filtros de tienda (por si afecta las categorías)
+                        
+                        const filtroActual = document.getElementById('select-filtros-tienda')?.value || 'TODOS';
+                        filtrarProductos(filtroActual); // Actualiza la Tienda
+                        mostrarMensaje(`PRODUCTO ${nuevoEstado ? 'SIN STOCK' : 'ACTIVADO'}. RECUERDA DESCARGAR JSON.`);
+                    }
+                });
+            }
+        };
+
+
         const filtrarYRenderizarProductos = () => {
             const listaAdmin = document.getElementById('lista-admin-productos');
             const termino = document.getElementById('buscador-admin').value.trim().toUpperCase();
-            const productosFiltrados = productos.filter(p => p.nombre.includes(termino));
+            
+            // Excluir el producto de carga fallida de la lista del administrador
+            const productosReales = productos.filter(p => p.id !== 9999);
+            
+            const productosFiltrados = productosReales.filter(p => 
+                p.nombre.includes(termino) || (p.id ? p.id.toString().includes(termino) : false)
+            );
 
             let htmlContent = '';
             if (productosFiltrados.length === 0 && termino.length > 0) {
                 htmlContent = `<p style="text-align: center;">NO SE ENCONTRARON RESULTADOS.</p>`;
+            } else if (productosReales.length === 0 && termino.length === 0) {
+                htmlContent = `<p style="text-align: center;">Aún no hay productos reales en la lista.</p>`;
             } else {
                 productosFiltrados.forEach(p => {
+                    // Lógica para Suspender/Activar (NUEVO)
+                    const suspendidoClass = p.suspendido ? 'admin-producto-suspendido' : '';
+                    const suspendidoText = p.suspendido ? 'ACTIVAR' : 'SIN STOCK';
+                    const suspendidoColor = p.suspendido ? '#5cb85c' : '#FFA500'; // Verde: Activar, Naranja: Sin Stock
+                    
                     htmlContent += `
-                        <div class="admin-producto-item">
+                        <div class="admin-producto-item ${suspendidoClass}">
                             <img src="${p.foto}" alt="${p.nombre}" onerror="this.onerror=null; this.src='https://placehold.co/50x50/ADD8E6/000?text=SF';">
                             <div class="admin-producto-info">
                                 <p><strong>ID: ${p.id}</strong> | ${p.nombre}</p>
                                 <p>$${p.precio.toFixed(2)} | CAT: ${p.categoria || 'SIN CATEGORÍA'}</p>
+                                ${p.suspendido ? '<p style="color: #FFA500; font-weight: bold;">(SIN STOCK)</p>' : ''}
                             </div>
                             <div class="admin-producto-acciones">
                                 <button onclick="cargarProductoParaEdicion(${p.id})" class="btn-modificar">MODIFICAR</button>
+                                <button onclick="suspenderProducto(${p.id})" class="btn-suspender" style="background-color: ${suspendidoColor};">${suspendidoText}</button>
                                 <button onclick="eliminarProducto(${p.id})" class="btn-eliminar">ELIMINAR</button>
                             </div>
                         </div>
@@ -707,19 +766,39 @@
             const categoria = document.getElementById('producto-categoria').value;
 
             if (!nombre || isNaN(precio) || !foto || !categoria) { mostrarMensaje("COMPLETE TODOS LOS CAMPOS."); return; }
+            
+            // Si hay un producto de prueba, lo eliminamos antes de añadir/modificar un producto real
+            if (productos.length === 1 && productos[0].id === 9999) productos = []; 
 
             if (id) {
                 const index = productos.findIndex(p => p.id === parseInt(id));
-                if (index !== -1) productos[index] = { id: parseInt(id), nombre, precio, foto, categoria };
+                if (index !== -1) {
+                    // Preservar el estado de suspendido al modificar
+                    productos[index] = { 
+                        id: parseInt(id), 
+                        nombre, 
+                        precio, 
+                        foto, 
+                        categoria,
+                        suspendido: productos[index].suspendido || false // Mantener estado de suspensión
+                    };
+                }
             } else {
                 const nuevoId = productos.length > 0 ? Math.max(...productos.map(p => p.id)) + 1 : 1;
-                productos.push({ id: nuevoId, nombre, precio, foto, categoria });
+                productos.push({ 
+                    id: nuevoId, 
+                    nombre, 
+                    precio, 
+                    foto, 
+                    categoria,
+                    suspendido: false // Nuevo producto inicia como activo
+                });
             }
 
             filtrarYRenderizarProductos(); 
             limpiarFormulario();
-            renderizarFiltros(); // Actualiza el select de la tienda
-            filtrarProductos('TODOS'); // Muestra todo en la tienda al guardar
+            renderizarFiltros(); 
+            filtrarProductos('TODOS'); 
             mostrarMensaje("PRODUCTO PROCESADO. NO OLVIDES DESCARGAR JSON.");
         };
 
@@ -750,7 +829,7 @@
                 if (confirmado) {
                     productos = productos.filter(p => p.id !== id);
                     filtrarYRenderizarProductos(); 
-                    renderizarFiltros(); // Actualiza el select de la tienda
+                    renderizarFiltros(); 
                     renderizarProductos();
                     mostrarMensaje("PRODUCTO ELIMINADO. DESCARGA EL JSON.");
                 }
