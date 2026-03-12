@@ -109,12 +109,28 @@
             padding: 10px 0; 
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15); 
         }
-        .tab-button {
-            padding: 10px 20px; cursor: pointer; background-color: var(--color-primario);
-            color: var(--color-texto); border: none; margin: 0 5px;
-            border-radius: 5px; font-weight: bold;
-        }
-        .tab-button.active { background-color: var(--color-acento); color: white; }
+        ..tab-button {
+    flex: 1;
+    margin: 0 8px;
+    padding: 12px;
+    cursor: pointer;
+    background-color: #f0f0f5; 
+    color: var(--color-acento);
+    border: none;
+    border-radius: 15px; /* Bordes redondeados tipo pastilla */
+    font-size: 1.6em;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tab-button.active { 
+    background-color: var(--color-acento); 
+    color: white; 
+    transform: scale(1.05); /* Hace que el botón activo resalte un poquito */
+    box-shadow: 0 4px 10px rgba(25, 25, 112, 0.3);
+}
 
         /* Panel Admin */
         #admin-panel input, #admin-panel select {
@@ -223,11 +239,17 @@
 </header>
 
     <main id="app-main">
-        <div class="tabs">
-            <button id="tab-tienda" class="tab-button active" onclick="mostrarPestana('tienda', event)">🛍️ TIENDA</button>
-            <button id="tab-carrito" class="tab-button" onclick="mostrarPestana('carrito', event)">🛒 CARRITO (<span id="carrito-count">0</span>)</button>
-            <button id="tab-admin" class="tab-button" onclick="mostrarPestana('admin', event)">🔑 ADMIN</button>
-        </div>
+        <div class="tabs" style="position: sticky; top: 0; z-index: 100; background-color: var(--color-fondo); display: flex; justify-content: space-around; padding: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+    <button id="tab-tienda" class="tab-button active" onclick="mostrarPestana('tienda', event)" title="TIENDA" style="flex: 1; margin: 0 5px; font-size: 1.5em;">🛍️</button>
+    
+    <button id="tab-carrito" class="tab-button" onclick="mostrarPestana('carrito', event)" title="CARRITO" style="flex: 1; margin: 0 5px; font-size: 1.5em; position: relative;">
+        🛒<span id="carrito-count" style="position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.6em;">0</span>
+    </button>
+    
+    <button id="tab-admin" class="tab-button" onclick="mostrarPestana('admin', event)" title="ADMIN" style="flex: 1; margin: 0 5px; font-size: 1.5em;">🔑</button>
+    
+    <button class="tab-button" onclick="abrirAyuda()" title="AYUDA" style="flex: 1; margin: 0 5px; font-size: 1.5em; background-color: white; border: 1px solid var(--color-acento); color: var(--color-acento);">❓</button>
+</div>
 
         <div id="tienda-panel" class="tab-content">
             <section id="productos-seccion">
@@ -259,7 +281,7 @@
           margin-bottom: 15px; 
           text-transform: none; 
           opacity: 0.85;">
-    * Recordá que para mantener nuestros precios mayoristaS, el monto mínimo de compra es de $100.000.
+    * Recordá que para mantener nuestros precios mayoristas, el monto mínimo de compra es de $100.000.
 </p>
                     <p>TOTAL: <span id="carrito-total">$0.00</span></p>
                     <button id="btn-vaciar-carrito">VACIAR CARRITO</button>
@@ -807,6 +829,54 @@
             document.getElementById('form-categoria')?.addEventListener('submit', gestionarFormularioCategoria);
             document.getElementById('buscador-admin')?.addEventListener('input', filtrarYRenderizarProductos);
         };
+        function abrirAyuda() {
+    Swal.fire({
+        title: '<span style="color: #191970;">AYUDA Y PREGUNTAS</span>',
+        html: `
+            <div style="text-align: left; font-size: 14px; text-transform: none;">
+                <details style="margin-bottom: 10px; border-bottom: 1px solid #DDA0DD; padding-bottom: 5px;">
+                    <summary style="font-weight: bold; color: #191970; cursor: pointer;">¿CÓMO HAGO MI PEDIDO?</summary>
+                    <p style="margin-top: 5px;">Agregá productos al carrito y tocá el botón verde. Se abrirá tu WhatsApp con el pedido listo.</p>
+                </details>
+
+                <details style="margin-bottom: 10px; border-bottom: 1px solid #DDA0DD; padding-bottom: 5px;">
+                    <summary style="font-weight: bold; color: #191970; cursor: pointer;">¿TIENE COSTO EL ENVÍO?</summary>
+                    <p style="margin-top: 5px;">En <b>Río Tercero y zona el envío es GRATIS</b>.</p>
+                </details>
+
+                <details style="margin-bottom: 10px; border-bottom: 1px solid #DDA0DD; padding-bottom: 5px;">
+                    <summary style="font-weight: bold; color: #191970; cursor: pointer;">¿DUDAS SOBRE QUÉ CABLE LLEVAR?</summary>
+                    <p style="margin-top: 5px;">Evitá errores consultando nuestra guía de compatibilidad:</p>
+                      <button onclick="verFotoGuia()" 
+                            style="background-color: #191970; color: white; border: none; padding: 12px; border-radius: 8px; font-size: 13px; cursor: pointer; margin-top: 10px; width: 100%; font-weight: bold;">
+                        VER GUÍA TÉCNICA 📱
+                    </button>
+                </details>
+
+                <p style="margin-top: 20px; font-weight: bold; text-align: center; color: #191970;">¿OTRA CONSULTA?</p>
+                <p style="text-align: center;">Escribinos por WhatsApp y te asesoramos personalmente.</p>
+            </div>
+        `,
+        showConfirmButton: true,
+        confirmButtonText: 'CERRAR',
+        confirmButtonColor: '#191970',
+        background: '#F8F8FF'
+    });
+}
+
+// Esta función abre la imagen que renombraste
+function verFotoGuia() {
+    Swal.fire({
+        imageUrl: 'guia-tecnica.jpg',
+        imageAlt: 'Guía JM Electrónica',
+        width: '95%',
+        showConfirmButton: true,
+        confirmButtonText: 'ENTENDIDO',
+        confirmButtonColor: '#191970'
+    });
+}
+       
+
     </script>
 </body>
 </html>
