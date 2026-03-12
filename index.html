@@ -841,7 +841,7 @@ function abrirAyuda() {
                 <details style="margin-bottom: 10px; border-bottom: 1px solid #DDA0DD; padding-bottom: 5px;">
                     <summary style="font-weight: bold; color: #191970; cursor: pointer;">¿DUDAS SOBRE QUÉ CABLE O CARGADOR LLEVAR?</summary>
                     <p style="margin-top: 5px;">¡Evitá errores! Consultá nuestra guía rápida de fichas y potencias aquí mismo para llevar lo que realmente necesitás:</p>
-                    <button id="btn-ver-guia-tecnica" 
+                    <button id="btn-ver-guia" 
                             style="background-color: #191970; color: white; border: none; padding: 12px; border-radius: 8px; font-size: 13px; cursor: pointer; margin-top: 10px; width: 100%; font-weight: bold;">
                         VER GUÍA DE PRODUCTOS 📱
                     </button>
@@ -856,16 +856,22 @@ function abrirAyuda() {
         confirmButtonColor: '#191970',
         background: '#F8F8FF',
         didOpen: () => {
-            // Vincula el botón a la función que abre la imagen
-            document.getElementById('btn-ver-guia-tecnica').onclick = () => verFotoGuia();
+            const boton = document.getElementById('btn-ver-guia');
+            if (boton) {
+                boton.onclick = function() {
+                    verFotoGuia();
+                };
+            }
         }
     });
 }
 
-// NUEVA FUNCIÓN PARA MOSTRAR LA FOTO
 function verFotoGuia() {
+    // Usamos la URL directa de tu repositorio de GitHub para que no falle
+    const urlImagen = "https://raw.githubusercontent.com/jmelectronica01/ventaspro/main/guia-tecnica.png";
+    
     Swal.fire({
-        imageUrl: 'guia-tecnica.jpg', // Recordá subirla a GitHub con este nombre
+        imageUrl: urlImagen,
         imageAlt: 'Guía Técnica JM Electrónica',
         width: '95%',
         confirmButtonText: 'ENTENDIDO',
