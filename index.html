@@ -867,27 +867,16 @@ function abrirAyuda() {
 }
 
 function verFotoGuia() {
-    // URL CORREGIDA: Apunta a jmelectronica que es tu repositorio
-    const urlDirecta = "https://raw.githubusercontent.com/jmelectronica01/jmelectronica/main/guia-tecnica.png";
-
+    // Usamos el nombre del archivo directo, sin URLs largas de GitHub
     Swal.fire({
-        imageUrl: urlDirecta,
+        imageUrl: 'guia-tecnica.png',
         imageAlt: 'Guía Técnica JM Electrónica',
         width: '95%',
         confirmButtonText: 'ENTENDIDO',
-        confirmButtonColor: '#191970',
-        didOpen: () => {
-            const img = Swal.getImage();
-            img.onerror = () => {
-                Swal.update({
-                    title: 'IMAGEN NO ENCONTRADA',
-                    html: `No se pudo cargar la foto.<br><br>Asegurate de que en GitHub el archivo se llame exactamente:<br><b>guia-tecnica.png</b>`,
-                    imageUrl: null
-                });
-            };
-        }
+        confirmButtonColor: '#191970'
     });
 }
+
     </script>
 </body>
 </html>
