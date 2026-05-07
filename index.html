@@ -36,12 +36,18 @@
             text-transform: uppercase;
         }
 
-        header {
-            background-color: var(--color-acento); 
-            padding: 20px; text-align: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
-            margin-bottom: 20px;
-        }
+      header {
+    background-color: white; 
+    position: fixed; 
+    top: 0; 
+    left: 0;
+    width: 100%;
+    z-index: 9999; 
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    height: auto; /* Permite que crezca según el contenido */
+}
         header h1 { 
             margin: 0; 
             font-size: 2em; 
@@ -240,6 +246,21 @@
     transform: translateY(-100%) !important;
     transition: transform 0.4s ease-in-out !important;
 }
+
+/* Esto asegura que la ayuda y alertas aparezcan al frente de todo */
+#modal-ayuda, .modal, .swal2-container {
+    z-index: 99999 !important;
+}
+
+/* Mejora la respuesta táctil de los iconos */
+header span {
+    display: inline-block;
+    cursor: pointer;
+}
+
+header span:active {
+    transform: scale(0.9);
+}
     </style>
 </head>
 <body>
@@ -247,146 +268,49 @@
     <img src="LOGO.png" alt="Logo" class="welcome-logo">
     <h1>catalogo electronica</h1>
 </div>
-<header style="
-    position: -webkit-sticky; /* Soporte para Safari */
-    position: sticky;
-    top: 0;
-    z-index: 1000; /* Aumentamos un poco para que nada pase por encima */
-    background: white;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    padding: 10px 15px;
-    width: 100%; /* Asegura que cubra todo el ancho */
-">
-
-    <div style="
-display: flex;
-align-items: center;
-justify-content: space-between;
-gap: 10px;
-flex-wrap: nowrap;
-">
-    
-
-        <!-- IZQUIERDA -->
-<div style="
-display: flex;
-align-items: center;
-gap: 6px;
-color: #191970;
-">
-
-    <!-- JM GRANDE -->
-    <div style="
-    font-size: 3em;
-    font-weight: 800;
-    line-height: 0.9;
-    transform: translateY(-2px);
-    font-family: 'Montserrat', sans-serif;
-    ">
-        JM
-    </div>
-
-    <!-- TEXTO DERECHO -->
-    
-    <div style="display: flex; flex-direction: column; justify-content: center; border-bottom: 2px solid #191970;">
-
-        <div style="
-        font-size: 1em;
-        font-weight: 700;
-        letter-spacing: 1px;
-        line-height: 1;
-        ">
-            ELECTRÓNICA
+<header style="position: sticky; top: 0; left: 0; width: 100%; z-index: 9999; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: block;">
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; background: white;">
+        
+        <div style="display: flex; align-items: center; gap: 6px; color: #191970;">
+            <div style="font-size: 3em; font-weight: 800; line-height: 0.9; transform: translateY(-2px); font-family: 'Montserrat', sans-serif;">
+                JM
+            </div>
+            <div style="display: flex; flex-direction: column; justify-content: center; border-bottom: 2px solid #191970;">
+                <div style="font-size: 1em; font-weight: 700; letter-spacing: 1px; line-height: 1;">
+                    ELECTRÓNICA
+                </div>
+                <div style="font-size: 1em; font-weight: 700; letter-spacing: 1.5px; line-height: 1; margin-top: 3px;">
+                    & ACCESORIOS
+                </div>
+            </div>
         </div>
 
-        <div style="
-        font-size: 1em;
-        font-weight: 700;
-        letter-spacing: 1.5px;
-        line-height: 1;
-        margin-top: 3px;
-        ">
-            & ACCESORIOS
-        </div>
-
+       <div style="display: flex; align-items: center; gap: 15px; font-size: 1.4em;">
+    
+    <div onclick="mostrarPestana('tienda')" style="cursor:pointer; color: #191970; padding: 5px;">🏠</div>
+    
+    <div onclick="mostrarPestana('carrito')" style="cursor:pointer; position: relative; color: #191970; padding: 5px; display: flex; align-items: center;">
+        🛒
+        <span id="carrito-count" style="position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.5em; font-weight: bold; pointer-events: none;">0</span>
     </div>
 
+    <div onclick="mostrarPestana('admin')" style="cursor:pointer; color: #191970; padding: 5px;">🔑</div>
+    
+    <div onclick="abrirAyuda()" style="cursor:pointer; color: #191970; font-weight: bold; font-family: Arial, sans-serif; padding: 5px;">?</div>
 </div>
-
-        <!-- DERECHA -->
-        <div style="
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        font-size: 1.2em;
-        ">
-
-            <span onclick="mostrarPestana('tienda', event)" style="cursor:pointer;">🏠</span>
-
-            <span onclick="mostrarPestana('carrito', event)" style="cursor:pointer; position: relative;">
-                🛒
-                <span id="carrito-count" style="
-                position: absolute;
-                top: -8px;
-                right: -10px;
-                background: red;
-                color: white;
-                border-radius: 50%;
-                padding: 2px 6px;
-                font-size: 0.55em;
-                ">
-                    0
-                </span>
-            </span>
-
-            <span onclick="mostrarPestana('admin', event)" style="cursor:pointer;">🔑</span>
-
-            <span onclick="abrirAyuda()" style="cursor:pointer;">?</span>
-
-        </div>
-
     </div>
 
-    <!-- BUSCADORES -->
-   <div style="
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 12px;
-    flex-wrap: nowrap;
-    width: 100%;
-    ">
+    <div style="background: #191970; padding: 8px 15px; display: flex; gap: 10px; align-items: center;">
+        <input type="text" id="buscador-productos" placeholder="Buscar..." oninput="buscarProductos()" 
+               style="flex: 1; padding: 6px 10px; border: none; border-radius: 4px; font-size: 14px; outline: none;">
+        
+        <div style="color: white; font-size: 1.1em; opacity: 0.9;">⌕</div>
 
-        <input
-        type="text"
-        id="buscador-productos"
-        placeholder="Buscar producto..."
-        oninput="buscarProductos()"
-        style="
-        flex: 1;
-        min-width: 0;
-        padding: 2px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        ">
-
-        <div style="font-size: 1em; color: #555; opacity: 0.8;">⌕</div>
-
-        <select
-        id="select-filtros-tienda"
-        onchange="filtrarProductos(this.value)"
-        style="
-        flex: 1;
-        min-width: 0;
-        padding: 2px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        ">
-            <option value="TODOS">TODOS</option>
+        <select id="select-filtros-tienda" onchange="filtrarProductos(this.value)" 
+                style="flex: 1; padding: 6px; border: none; border-radius: 4px; font-size: 13px; font-weight: bold; background: white; color: #191970; outline: none;">
+            <option value="TODOS">CATEGORÍAS</option>
         </select>
-
     </div>
-
 </header>
     <main id="app-main">
        
@@ -963,38 +887,48 @@ const filtrarProductos = (categoria) => {
         // =================================================================
         // 6. NAVEGACIÓN
         // =================================================================
-       const mostrarPestana = (pestana, event) => {
-    if (event) event.preventDefault();
-
-    // 1. Ocultamos las secciones principales (fijate que usamos "seccion-")
+      const mostrarPestana = (pestana) => {
+    // 1. Ocultamos los tres paneles reales de tu HTML
     const secciones = ['tienda', 'carrito', 'admin'];
     secciones.forEach(s => {
-        const el = document.getElementById(`seccion-${s}`);
+        const el = document.getElementById(`${s}-panel`); // Usamos -panel que es como está en tu HTML
         if (el) el.style.display = 'none';
     });
 
-    // 2. Mostramos la que elegiste
-    const activa = document.getElementById(`seccion-${pestana}`);
-    if (activa) activa.style.display = 'block';
+    // 2. Mostramos el panel elegido
+    const activa = document.getElementById(`${pestana}-panel`);
+    if (activa) {
+        activa.style.display = 'block';
+    }
 
-    // 3. SI ES LA CASITA (TIENDA): Limpiamos todo
+    // 3. Lógica de carga para cada pestaña
     if (pestana === 'tienda') {
-        // Limpiamos los buscadores
-        document.getElementById('buscador-productos').value = "";
+        const buscador = document.getElementById('buscador-productos');
+        if (buscador) buscador.value = "";
         const selectFiltros = document.getElementById('select-filtros-tienda');
         if (selectFiltros) selectFiltros.value = 'TODOS';
         
-        // Limpiamos la pantalla y dibujamos todo de cero
-        document.getElementById('productos-seccion').innerHTML = "";
-        renderizarProductos(productos);
+        const contenedor = document.getElementById('productos-seccion');
+        if (contenedor) {
+            contenedor.innerHTML = "";
+            renderizarProductos(productos);
+        }
     }
 
-    if (pestana === 'carrito') renderizarCarrito();
-    if (pestana === 'admin') actualizarDashboard();
+    if (pestana === 'carrito') {
+        renderizarCarrito();
+    }
+    
+    if (pestana === 'admin') {
+        // Si ya te habías logueado, que no te pida la clave de nuevo
+        const gestion = document.getElementById('gestion-seccion');
+        if (gestion && gestion.style.display === 'block') {
+            filtrarYRenderizarProductos();
+        }
+    }
     
     window.scrollTo(0, 0);
 };
-
         // =================================================================
         // 7. INICIALIZACIÓN
         // =================================================================
