@@ -22,7 +22,7 @@
         html, body { 
             max-width: 100%; 
             overflow-x: hidden; 
-            position: relative;
+            
             margin: 0; 
             padding: 0;
             box-sizing: border-box;
@@ -531,9 +531,7 @@ color: #191970;
         const renderizarProductos = (productosParaMostrar) => {
             const productosSeccion = document.getElementById('productos-seccion');
             
-            const contenedoresAnteriores = productosSeccion.querySelectorAll('div:not([style*="margin-bottom"])');
-            contenedoresAnteriores.forEach(c => c.remove());
-
+            
             if (productosParaMostrar.length === 0) {
                 const emptyMsg = document.createElement('p');
                 emptyMsg.style.textAlign = 'center';
@@ -637,49 +635,52 @@ margin-top: 10px;
         // =================================================================
         // 4. LÓGICA DEL CARRITO
         // =================================================================
-        const agregarAlCarrito = async (productoId) => {
-            const producto = productos.find(p => p.id === productoId);
-            
-            if (!producto || producto.suspendido) {
-                Swal.fire({ title: "LO SENTIMOS", text: "ESTE PRODUCTO NO TIENE STOCK.", icon: "error", confirmButtonColor: "#191970" });
-                return;
-            }
+        const agregarAlCarrito = (productoId) => {
+    const producto = productos.find(p => p.id === productoId);
+    
+    if (!producto || producto.suspendido) {
+        Swal.fire({ 
+            title: "LO SENTIMOS", 
+            text: "ESTE PRODUCTO NO TIENE STOCK.", 
+            icon: "error", 
+            confirmButtonColor: "#191970" 
+        });
+        return;
+    }
 
-            // VENTANA MODERNA DE CANTIDAD
-            const { value: cantidadIngresada } = await Swal.fire({
-                title: 'CANTIDAD...',
-                input: 'number',
-                inputValue: 1,
-                showCancelButton: true,
-                confirmButtonText: 'AGREGAR',
-                cancelButtonText: 'CANCELAR',
-                confirmButtonColor: '#191970',
-                inputAttributes: { min: 1, step: 1 },
-                inputValidator: (value) => { if (!value || value <= 0) return 'POR FAVOR, INGRESE UN NÚMERO VÁLIDO.'; }
-            });
+    // 1. LEEMOS LA CANTIDAD DIRECTAMENTE DE LA TARJETA
+    const inputCant = document.getElementById(`cantidad-${productoId}`);
+    const cantidad = parseInt(inputCant.value) || 1;
 
-            if (!cantidadIngresada) return; 
-            
-            let cantidad = parseInt(cantidadIngresada);
+    // 2. LOGICA DE AGREGAR AL CARRITO
+    const itemEnCarrito = carrito.find(item => item.id === productoId);
+    if (itemEnCarrito) {
+        itemEnCarrito.cantidad += cantidad;
+    } else {
+        carrito.push({
+            id: producto.id,
+            nombre: producto.nombre,
+            precio: producto.precio,
+            foto: producto.foto,
+            cantidad: cantidad
+        });
+    }
 
-            const itemEnCarrito = carrito.find(item => item.id === productoId);
-            if (itemEnCarrito) {
-                itemEnCarrito.cantidad += cantidad;
-            } else {
-                carrito.push({
-                    id: producto.id,
-                    nombre: producto.nombre,
-                    precio: producto.precio,
-                    foto: producto.foto, // CAMBIO: GUARDAR FOTO PARA CARRITO
-                    cantidad: cantidad
-                });
-            }
+    // 3. GUARDAR Y ACTUALIZAR
+    guardarCarrito();
+    renderizarCarrito();
+    actualizarContadorCarrito();
 
-            guardarCarrito();
-            renderizarCarrito();
-            actualizarContadorCarrito();
-            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: '¡PRODUCTO AGREGADO!', showConfirmButton: false, timer: 1500 });
-        };
+    // 4. EL CARTEL QUE QUERÉS MANTENER (Aviso de éxito rápido)
+    Swal.fire({ 
+        toast: true, 
+        position: 'top-end', 
+        icon: 'success', 
+        title: '¡PRODUCTO AGREGADO!', 
+        showConfirmButton: false, 
+        timer: 1500 
+    });
+};
 
         const cambiarCantidadCarrito = (productoId, nuevaCantidad) => {
             const cantidad = parseInt(nuevaCantidad);
@@ -1087,11 +1088,27 @@ window.addEventListener('touchend', (e) => {
 
 function buscarProductos() {
     const texto = document.getElementById('buscador-productos').value.toLowerCase();
+    const productosSeccion = document.getElementById('productos-seccion');
+
+    // 1. Limpiamos TODO el contenido anterior antes de mostrar resultados nuevos
+    productosSeccion.innerHTML = "";
 
     const filtrados = productos.filter(p => 
         p.nombre.toLowerCase().includes(texto)
     );
 
+    // 2. Si no hay nada, mostramos el mensaje una sola vez
+    if (filtrados.length === 0) {
+        const emptyMsg = document.createElement('p');
+        emptyMsg.style.textAlign = 'center';
+        emptyMsg.style.padding = '20px';
+        emptyMsg.style.fontWeight = 'bold';
+        emptyMsg.innerText = "NO SE ENCONTRARON PRODUCTOS.";
+        productosSeccion.appendChild(emptyMsg);
+        return;
+    }
+
+    // 3. Si hay productos, los dibujamos normalmente
     renderizarProductos(filtrados);
 }
 
