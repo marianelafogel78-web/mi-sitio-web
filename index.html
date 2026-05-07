@@ -604,15 +604,17 @@ margin-top: 10px;
                 productosSeccion.appendChild(divCategoria);
             });
         };
+const filtrarProductos = (categoria) => {
+    // ESTO ES LO QUE FALTA: Limpiar antes de filtrar
+    document.getElementById('productos-seccion').innerHTML = ""; 
 
-        const filtrarProductos = (categoria) => {
-            if (categoria === 'TODOS') {
-                renderizarProductos(productos);
-            } else {
-                const filtrados = productos.filter(p => p.categoria === categoria);
-                renderizarProductos(filtrados);
-            }
-        };
+    if (categoria === 'TODOS') {
+        renderizarProductos(productos);
+    } else {
+        const filtrados = productos.filter(p => p.categoria === categoria);
+        renderizarProductos(filtrados);
+    }
+};
 
         const renderizarFiltros = () => {
             const selectFiltros = document.getElementById('select-filtros-tienda');
@@ -961,22 +963,37 @@ margin-top: 10px;
         // =================================================================
         // 6. NAVEGACIÓN
         // =================================================================
-        const mostrarPestana = (pestana, event) => {
-            document.querySelectorAll('.tab-content').forEach(p => p.style.display = 'none');
-            document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-            
-            document.getElementById(`${pestana}-panel`).style.display = 'block';
-            event.target.classList.add('active');
+       const mostrarPestana = (pestana, event) => {
+    if (event) event.preventDefault();
 
-            if (pestana === 'tienda') {
-                renderizarProductos(productos);
-                const selectFiltros = document.getElementById('select-filtros-tienda');
-                if(selectFiltros) selectFiltros.value = 'TODOS';
-            }
-            if (pestana === 'carrito') renderizarCarrito();
-            
-            window.scrollTo(0, 0);
-        };
+    // 1. Ocultamos las secciones principales (fijate que usamos "seccion-")
+    const secciones = ['tienda', 'carrito', 'admin'];
+    secciones.forEach(s => {
+        const el = document.getElementById(`seccion-${s}`);
+        if (el) el.style.display = 'none';
+    });
+
+    // 2. Mostramos la que elegiste
+    const activa = document.getElementById(`seccion-${pestana}`);
+    if (activa) activa.style.display = 'block';
+
+    // 3. SI ES LA CASITA (TIENDA): Limpiamos todo
+    if (pestana === 'tienda') {
+        // Limpiamos los buscadores
+        document.getElementById('buscador-productos').value = "";
+        const selectFiltros = document.getElementById('select-filtros-tienda');
+        if (selectFiltros) selectFiltros.value = 'TODOS';
+        
+        // Limpiamos la pantalla y dibujamos todo de cero
+        document.getElementById('productos-seccion').innerHTML = "";
+        renderizarProductos(productos);
+    }
+
+    if (pestana === 'carrito') renderizarCarrito();
+    if (pestana === 'admin') actualizarDashboard();
+    
+    window.scrollTo(0, 0);
+};
 
         // =================================================================
         // 7. INICIALIZACIÓN
