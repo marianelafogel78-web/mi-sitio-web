@@ -247,13 +247,15 @@
     <img src="LOGO.png" alt="Logo" class="welcome-logo">
     <h1>CATÁLOGO ELECTRÓNICA</h1>
 </div>
- <header style="
-position: sticky;
-top: 0;
-z-index: 999;
-background: white;
-box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-padding: 10px 15px;
+<header style="
+    position: -webkit-sticky; /* Soporte para Safari */
+    position: sticky;
+    top: 0;
+    z-index: 1000; /* Aumentamos un poco para que nada pase por encima */
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 10px 15px;
+    width: 100%; /* Asegura que cubra todo el ancho */
 ">
 
     <div style="
@@ -285,11 +287,8 @@ color: #191970;
     </div>
 
     <!-- TEXTO DERECHO -->
-    <div style="
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    ">
+    
+    <div style="display: flex; flex-direction: column; justify-content: center; border-bottom: 2px solid #191970;">
 
         <div style="
         font-size: 0.82em;
