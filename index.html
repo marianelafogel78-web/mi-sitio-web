@@ -358,7 +358,7 @@ box-sizing: border-box;
           margin-bottom: 15px; 
           text-transform: none; 
           opacity: 0.85;">
-    * Recordá que para mantener nuestros precios mayoristas, el monto mínimo de compra es de $100.000.
+    * Recordá que el monto mínimo de compra es de $100.000. Gracias!
 </p>
                     <p>TOTAL: <span id="carrito-total">$0.00</span></p>
                     <button id="btn-vaciar-carrito">VACIAR CARRITO</button>
@@ -601,18 +601,7 @@ const buscarProductos = () => {
                 return;
             }
 
-            // VENTANA MODERNA DE CANTIDAD
-            const { value: cantidadIngresada } = await Swal.fire({
-                title: 'CANTIDAD...',
-                input: 'number',
-                inputValue: 1,
-                showCancelButton: true,
-                confirmButtonText: 'AGREGAR',
-                cancelButtonText: 'CANCELAR',
-                confirmButtonColor: '#191970',
-                inputAttributes: { min: 1, step: 1 },
-                inputValidator: (value) => { if (!value || value <= 0) return 'POR FAVOR, INGRESE UN NÚMERO VÁLIDO.'; }
-            });
+            
 
             if (!cantidadIngresada) return; 
             
