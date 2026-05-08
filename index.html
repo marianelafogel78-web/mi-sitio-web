@@ -625,11 +625,7 @@ const buscarProductos = () => {
     renderizarCarrito();
     actualizarContadorCarrito();
 };
-            guardarCarrito();
-            renderizarCarrito();
-            actualizarContadorCarrito();
-            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: '¡PRODUCTO AGREGADO!', showConfirmButton: false, timer: 1500 });
-        };
+            
 
         const cambiarCantidadCarrito = (productoId, nuevaCantidad) => {
             const cantidad = parseInt(nuevaCantidad);
