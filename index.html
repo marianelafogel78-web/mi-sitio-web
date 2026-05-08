@@ -9,23 +9,13 @@
     
    <style>
         /* PALETA FINAL: LILA/ROSA con AZUL MARINO como ACENTO LLAMATIVO (COLORES CORREGIDOS) */ 
-       :root {
-            --color-fondo: #F8F8FF;
-            --color-primario: #E6E6FA;
-            --color-secundario: #DDA0DD;
-            --color-acento: #191970;
-            --color-texto: #000000;
-            --color-borde: #A9A9A9;
-        }
-
-        /* Bloqueo de movimiento lateral */
-        html, body { 
-            max-width: 100%; 
-            overflow-x: hidden; 
-            
-            margin: 0; 
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --color-fondo: #F8F8FF; /* BLANCO SUAVE (GhostWhite) */
+            --color-primario: #E6E6FA; /* LAVANDA PÁLIDO */
+            --color-secundario: #DDA0DD; /* CIRUELA SUAVE */
+            --color-acento: #191970; /* AZUL MARINO OSCURO */
+            --color-texto: #000000; /* NEGRO PURO */
+            --color-borde: #A9A9A9; /* GRIS OSCURO SUAVE */
         }
 
         * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
@@ -33,24 +23,19 @@
         body {
             background-color: var(--color-fondo);
             color: var(--color-texto);
+            margin: 0; padding: 0;
             text-transform: uppercase;
         }
 
-      header {
-    background-color: white; 
-    position: fixed; 
-    top: 0; 
-    left: 0;
-    width: 100%;
-    z-index: 9999; 
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    display: flex;
-    flex-direction: column;
-    height: auto; /* Permite que crezca según el contenido */
-}
+        header {
+            background-color: var(--color-acento); 
+            padding: 20px; text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+            margin-bottom: 20px;
+        }
         header h1 { 
             margin: 0; 
-            font-size: 2em; 
+            font-size: 2.5em; 
             color: white;
         }
 
@@ -246,78 +231,112 @@
     transform: translateY(-100%) !important;
     transition: transform 0.4s ease-in-out !important;
 }
-
-/* Esto asegura que la ayuda y alertas aparezcan al frente de todo */
-#modal-ayuda, .modal, .swal2-container {
-    z-index: 99999 !important;
-}
-
-/* Mejora la respuesta táctil de los iconos */
-header span {
-    display: inline-block;
-    cursor: pointer;
-}
-
-header span:active {
-    transform: scale(0.9);
-}
     </style>
 </head>
 <body>
 <div id="welcome-screen">
     <img src="LOGO.png" alt="Logo" class="welcome-logo">
-    <h1>catalogo electronica</h1>
+    <h1>CATÁLOGO ELECTRÓNICA</h1>
 </div>
-<header style="position: sticky; top: 0; left: 0; width: 100%; z-index: 9999; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: block;">
-    <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; background: white;">
-        
-        <div style="display: flex; align-items: center; gap: 6px; color: #191970;">
-            <div style="font-size: 3em; font-weight: 800; line-height: 0.9; transform: translateY(-2px); font-family: 'Montserrat', sans-serif;">
-                JM
-            </div>
-            <div style="display: flex; flex-direction: column; justify-content: center; border-bottom: 2px solid #191970;">
-                <div style="font-size: 1em; font-weight: 700; letter-spacing: 1px; line-height: 1;">
-                    ELECTRÓNICA
-                </div>
-                <div style="font-size: 1em; font-weight: 700; letter-spacing: 1.5px; line-height: 1; margin-top: 3px;">
-                    & ACCESORIOS
-                </div>
-            </div>
-        </div>
-
-       <div style="display: flex; align-items: center; gap: 15px; font-size: 1.4em;">
+   <header style="background-color: var(--color-acento); padding: 20px 20px 40px 20px; text-align: center; position: relative;">
+    <h1 style="margin: 0; font-size: 2.8em; color: white;">JM.ELECTRÓNICA</h1>
     
-    <div onclick="mostrarPestana('tienda')" style="cursor:pointer; color: #191970; padding: 5px;">🏠</div>
-    
-    <div onclick="mostrarPestana('carrito')" style="cursor:pointer; position: relative; color: #191970; padding: 5px; display: flex; align-items: center;">
-        🛒
-        <span id="carrito-count" style="position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.5em; font-weight: bold; pointer-events: none;">0</span>
-    </div>
-
-    <div onclick="mostrarPestana('admin')" style="cursor:pointer; color: #191970; padding: 5px;">🔑</div>
-    
-    <div onclick="abrirAyuda()" style="cursor:pointer; color: #191970; font-weight: bold; font-family: Arial, sans-serif; padding: 5px;">?</div>
-</div>
-    </div>
-
-    <div style="background: #191970; padding: 8px 15px; display: flex; gap: 10px; align-items: center;">
-        <input type="text" id="buscador-productos" placeholder="Buscar..." oninput="buscarProductos()" 
-               style="flex: 1; padding: 6px 10px; border: none; border-radius: 4px; font-size: 14px; outline: none;">
-        
-        <div style="color: white; font-size: 1.1em; opacity: 0.9;">⌕</div>
-
-        <select id="select-filtros-tienda" onchange="filtrarProductos(this.value)" 
-                style="flex: 1; padding: 6px; border: none; border-radius: 4px; font-size: 13px; font-weight: bold; background: white; color: #191970; outline: none;">
-            <option value="TODOS">CATEGORÍAS</option>
-        </select>
-    </div>
+  
 </header>
+
     <main id="app-main">
-       
+       <div class="tabs" style="
+position: sticky;
+top: 0;
+z-index: 100;
+background-color: var(--color-fondo);
+display: flex;
+flex-direction: column;
+padding: 10px;
+gap: 10px;
+box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+">
+
+    <div style="
+    display: flex;
+    justify-content: space-around;
+    gap: 10px;
+    width: 100%;
+    ">
+
+        <button id="tab-tienda" class="tab-button active" onclick="mostrarPestana('tienda', event)" title="TIENDA" style="flex: 1; margin: 0 5px; font-size: 1.5em;">☰</button>
+
+        <button id="tab-carrito" class="tab-button" onclick="mostrarPestana('carrito', event)" title="CARRITO" style="flex: 1; margin: 0 5px; font-size: 1.5em; position: relative;">
+            🛒
+            <span id="carrito-count" style="
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: red;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 0.6em;
+            ">
+                0
+            </span>
+        </button>
+
+        <button id="tab-admin" class="tab-button" onclick="mostrarPestana('admin', event)" title="ADMIN" style="flex: 1; margin: 0 5px; font-size: 1.5em;">⚙</button>
+
+        <button class="tab-button" onclick="abrirAyuda()" title="AYUDA" style="flex: 1; margin: 0 5px; font-size: 1.5em; background-color: white; color: black;">?</button>
+
+    </div>
+
+<div style="
+display: flex;
+gap: 6px;
+margin-top: 10px;
+width: calc(100% - 10px);
+margin-left: auto;
+margin-right: auto;
+box-sizing: border-box;
+">
+
+    <input
+    type="text"
+    id="buscador-productos"
+    placeholder="Buscar producto..."
+    oninput="buscarProductos()"
+    style="
+    flex: 1;
+    min-width: 0;
+    max-width: 48%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 0.85em;
+    ">
+
+    <select
+    id="select-filtros-tienda"
+    onchange="filtrarProductos(this.value)"
+    style="
+   flex: 1;
+   min-width: 0;
+   max-width: 48%;
+   padding: 10px;
+   border: 1px solid #ccc;
+   border-radius: 6px;
+   font-size: 0.85em;
+    ">
+        <option value="TODOS">TODOS</option>
+    </select>
+
+</div>
+
+</div>
+
 
         <div id="tienda-panel" class="tab-content">
             <section id="productos-seccion">
-            
+                
+               
                 <div id="loading-message" style="text-align: center; padding: 20px;">CARGANDO PRODUCTOS...</div>
             </section>
         </div>
@@ -350,7 +369,7 @@ header span:active {
 
         <div id="admin-panel" class="tab-content" style="display: none;">
             <section id="login-seccion">
-                <h2>🔑 ACCESO ADMINISTRADOR</h2>
+                <h2>⚙️ACCESO ADMINISTRADOR</h2>
                 <input type="password" id="admin-password" placeholder="CONTRASEÑA">
                 <button id="btn-login" style="width: 100%; padding: 10px; background-color: var(--color-acento); color: white; border: none; border-radius: 4px; cursor: pointer;">INGRESAR</button>
             </section>
@@ -455,7 +474,9 @@ header span:active {
         const renderizarProductos = (productosParaMostrar) => {
             const productosSeccion = document.getElementById('productos-seccion');
             
-            
+            const contenedoresAnteriores = productosSeccion.querySelectorAll('div:not([style*="margin-bottom"])');
+            contenedoresAnteriores.forEach(c => c.remove());
+
             if (productosParaMostrar.length === 0) {
                 const emptyMsg = document.createElement('p');
                 emptyMsg.style.textAlign = 'center';
@@ -493,26 +514,25 @@ header span:active {
                         <p class="precio">$${producto.precio.toFixed(2)}</p>
                         <div style="
 display: flex;
+gap: 8px;
 align-items: center;
-gap: 6px;
 margin-top: 10px;
 ">
 
-    <input 
+    <input
     type="number"
     id="cantidad-${producto.id}"
     value="1"
     min="1"
     style="
-    width: 55px;
+    width: 60px;
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 6px;
     text-align: center;
-    font-size: 0.9em;
     ">
 
-    <button 
+    <button
     onclick="agregarAlCarrito(${producto.id})"
     ${esAgotado ? 'disabled' : ''}
     style="
@@ -528,16 +548,28 @@ margin-top: 10px;
                 productosSeccion.appendChild(divCategoria);
             });
         };
-const filtrarProductos = (categoria) => {
-    // ESTO ES LO QUE FALTA: Limpiar antes de filtrar
-    document.getElementById('productos-seccion').innerHTML = ""; 
 
-    if (categoria === 'TODOS') {
-        renderizarProductos(productos);
-    } else {
-        const filtrados = productos.filter(p => p.categoria === categoria);
-        renderizarProductos(filtrados);
-    }
+        const filtrarProductos = (categoria) => {
+            if (categoria === 'TODOS') {
+                renderizarProductos(productos);
+            } else {
+                const filtrados = productos.filter(p => p.categoria === categoria);
+                renderizarProductos(filtrados);
+            }
+        };
+
+const buscarProductos = () => {
+
+    const texto = document
+        .getElementById('buscador-productos')
+        .value
+        .toLowerCase();
+
+    const filtrados = productos.filter(producto =>
+        producto.nombre.toLowerCase().includes(texto)
+    );
+
+    renderizarProductos(filtrados);
 };
 
         const renderizarFiltros = () => {
@@ -547,7 +579,7 @@ const filtrarProductos = (categoria) => {
 
             const opciones = categorias.map(cat => `<option value="${cat}">${cat}</option>`).join('');
             
-            selectFiltros.innerHTML = '<option value="TODOS">TODOS LOS PRODUCTOS</option>' + opciones;
+            selectFiltros.innerHTML = '<option value="TODOS">CATEGORÍAS</option>' + opciones;
             selectForm.innerHTML = '<option value="">SELECCIONE CATEGORÍA</option>' + opciones;
             
             listaCatAdmin.innerHTML = categorias.map(cat => `
@@ -561,52 +593,49 @@ const filtrarProductos = (categoria) => {
         // =================================================================
         // 4. LÓGICA DEL CARRITO
         // =================================================================
-        const agregarAlCarrito = (productoId) => {
-    const producto = productos.find(p => p.id === productoId);
-    
-    if (!producto || producto.suspendido) {
-        Swal.fire({ 
-            title: "LO SENTIMOS", 
-            text: "ESTE PRODUCTO NO TIENE STOCK.", 
-            icon: "error", 
-            confirmButtonColor: "#191970" 
-        });
-        return;
-    }
+        const agregarAlCarrito = async (productoId) => {
+            const producto = productos.find(p => p.id === productoId);
+            
+            if (!producto || producto.suspendido) {
+                Swal.fire({ title: "LO SENTIMOS", text: "ESTE PRODUCTO NO TIENE STOCK.", icon: "error", confirmButtonColor: "#191970" });
+                return;
+            }
 
-    // 1. LEEMOS LA CANTIDAD DIRECTAMENTE DE LA TARJETA
-    const inputCant = document.getElementById(`cantidad-${productoId}`);
-    const cantidad = parseInt(inputCant.value) || 1;
+            // VENTANA MODERNA DE CANTIDAD
+            const { value: cantidadIngresada } = await Swal.fire({
+                title: 'CANTIDAD...',
+                input: 'number',
+                inputValue: 1,
+                showCancelButton: true,
+                confirmButtonText: 'AGREGAR',
+                cancelButtonText: 'CANCELAR',
+                confirmButtonColor: '#191970',
+                inputAttributes: { min: 1, step: 1 },
+                inputValidator: (value) => { if (!value || value <= 0) return 'POR FAVOR, INGRESE UN NÚMERO VÁLIDO.'; }
+            });
 
-    // 2. LOGICA DE AGREGAR AL CARRITO
-    const itemEnCarrito = carrito.find(item => item.id === productoId);
-    if (itemEnCarrito) {
-        itemEnCarrito.cantidad += cantidad;
-    } else {
-        carrito.push({
-            id: producto.id,
-            nombre: producto.nombre,
-            precio: producto.precio,
-            foto: producto.foto,
-            cantidad: cantidad
-        });
-    }
+            if (!cantidadIngresada) return; 
+            
+            let cantidad = parseInt(cantidadIngresada);
 
-    // 3. GUARDAR Y ACTUALIZAR
-    guardarCarrito();
-    renderizarCarrito();
-    actualizarContadorCarrito();
+            const itemEnCarrito = carrito.find(item => item.id === productoId);
+            if (itemEnCarrito) {
+                itemEnCarrito.cantidad += cantidad;
+            } else {
+                carrito.push({
+                    id: producto.id,
+                    nombre: producto.nombre,
+                    precio: producto.precio,
+                    foto: producto.foto, // CAMBIO: GUARDAR FOTO PARA CARRITO
+                    cantidad: cantidad
+                });
+            }
 
-    // 4. EL CARTEL QUE QUERÉS MANTENER (Aviso de éxito rápido)
-    Swal.fire({ 
-        toast: true, 
-        position: 'top-end', 
-        icon: 'success', 
-        title: '¡PRODUCTO AGREGADO!', 
-        showConfirmButton: false, 
-        timer: 1500 
-    });
-};
+            guardarCarrito();
+            renderizarCarrito();
+            actualizarContadorCarrito();
+            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: '¡PRODUCTO AGREGADO!', showConfirmButton: false, timer: 1500 });
+        };
 
         const cambiarCantidadCarrito = (productoId, nuevaCantidad) => {
             const cantidad = parseInt(nuevaCantidad);
@@ -887,48 +916,23 @@ const filtrarProductos = (categoria) => {
         // =================================================================
         // 6. NAVEGACIÓN
         // =================================================================
-      const mostrarPestana = (pestana) => {
-    // 1. Ocultamos los tres paneles reales de tu HTML
-    const secciones = ['tienda', 'carrito', 'admin'];
-    secciones.forEach(s => {
-        const el = document.getElementById(`${s}-panel`); // Usamos -panel que es como está en tu HTML
-        if (el) el.style.display = 'none';
-    });
+        const mostrarPestana = (pestana, event) => {
+            document.querySelectorAll('.tab-content').forEach(p => p.style.display = 'none');
+            document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(`${pestana}-panel`).style.display = 'block';
+            event.target.classList.add('active');
 
-    // 2. Mostramos el panel elegido
-    const activa = document.getElementById(`${pestana}-panel`);
-    if (activa) {
-        activa.style.display = 'block';
-    }
+            if (pestana === 'tienda') {
+                renderizarProductos(productos);
+                const selectFiltros = document.getElementById('select-filtros-tienda');
+                if(selectFiltros) selectFiltros.value = 'TODOS';
+            }
+            if (pestana === 'carrito') renderizarCarrito();
+            
+            window.scrollTo(0, 0);
+        };
 
-    // 3. Lógica de carga para cada pestaña
-    if (pestana === 'tienda') {
-        const buscador = document.getElementById('buscador-productos');
-        if (buscador) buscador.value = "";
-        const selectFiltros = document.getElementById('select-filtros-tienda');
-        if (selectFiltros) selectFiltros.value = 'TODOS';
-        
-        const contenedor = document.getElementById('productos-seccion');
-        if (contenedor) {
-            contenedor.innerHTML = "";
-            renderizarProductos(productos);
-        }
-    }
-
-    if (pestana === 'carrito') {
-        renderizarCarrito();
-    }
-    
-    if (pestana === 'admin') {
-        // Si ya te habías logueado, que no te pida la clave de nuevo
-        const gestion = document.getElementById('gestion-seccion');
-        if (gestion && gestion.style.display === 'block') {
-            filtrarYRenderizarProductos();
-        }
-    }
-    
-    window.scrollTo(0, 0);
-};
         // =================================================================
         // 7. INICIALIZACIÓN
         // =================================================================
@@ -1036,32 +1040,6 @@ window.addEventListener('touchend', (e) => {
         deslizarArriba();
     }
 }, { passive: true });
-
-function buscarProductos() {
-    const texto = document.getElementById('buscador-productos').value.toLowerCase();
-    const productosSeccion = document.getElementById('productos-seccion');
-
-    // 1. Limpiamos TODO el contenido anterior antes de mostrar resultados nuevos
-    productosSeccion.innerHTML = "";
-
-    const filtrados = productos.filter(p => 
-        p.nombre.toLowerCase().includes(texto)
-    );
-
-    // 2. Si no hay nada, mostramos el mensaje una sola vez
-    if (filtrados.length === 0) {
-        const emptyMsg = document.createElement('p');
-        emptyMsg.style.textAlign = 'center';
-        emptyMsg.style.padding = '20px';
-        emptyMsg.style.fontWeight = 'bold';
-        emptyMsg.innerText = "NO SE ENCONTRARON PRODUCTOS.";
-        productosSeccion.appendChild(emptyMsg);
-        return;
-    }
-
-    // 3. Si hay productos, los dibujamos normalmente
-    renderizarProductos(filtrados);
-}
 
     </script>
 </body>
