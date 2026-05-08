@@ -599,6 +599,10 @@ const buscarProductos = () => {
             if (!producto || producto.suspendido) {
                 Swal.fire({ title: "LO SENTIMOS", text: "ESTE PRODUCTO NO TIENE STOCK.", icon: "error", confirmButtonColor: "#191970" });
                 return;
+           const inputCantidad = document.getElementById(`cantidad-${productoId}`);
+           let cantidad = parseInt(inputCantidad.value);
+
+           if (!cantidad || cantidad <= 0) return;
             }
 
             
