@@ -600,16 +600,12 @@ const buscarProductos = () => {
                 Swal.fire({ title: "LO SENTIMOS", text: "ESTE PRODUCTO NO TIENE STOCK.", icon: "error", confirmButtonColor: "#191970" });
                 return;
            const inputCantidad = document.getElementById(`cantidad-${productoId}`);
-           let cantidad = parseInt(inputCantidad.value);
 
-           if (!cantidad || cantidad <= 0) return;
-            }
+if (!inputCantidad) return;
 
-            
+let cantidad = parseInt(inputCantidad.value);
 
-            if (!cantidadIngresada) return; 
-            
-            let cantidad = parseInt(cantidadIngresada);
+if (!cantidad || cantidad <= 0) return;
 
             const itemEnCarrito = carrito.find(item => item.id === productoId);
             if (itemEnCarrito) {
