@@ -593,32 +593,54 @@ const buscarProductos = () => {
         // =================================================================
         // 4. LÓGICA DEL CARRITO
         // =================================================================
-        const agregarAlCarrito = async (productoId) => {
-            const producto = productos.find(p => p.id === productoId);
-            
-            if (!producto || producto.suspendido) {
-                Swal.fire({ title: "LO SENTIMOS", text: "ESTE PRODUCTO NO TIENE STOCK.", icon: "error", confirmButtonColor: "#191970" });
-                return;
-           const inputCantidad = document.getElementById(`cantidad-${productoId}`);
+       const agregarAlCarrito = async (productoId) => {
+    const producto = productos.find(p => p.id === productoId);
+    
+    if (!producto || producto.suspendido) {
+        Swal.fire({ 
+            title: "LO SENTIMOS", 
+            text: "ESTE PRODUCTO NO TIENE STOCK.", 
+            icon: "error", 
+            confirmButtonColor: "#191970" 
+        });
+        return;
+    }
 
-if (!inputCantidad) return;
+    const inputCantidad = document.getElementById(`cantidad-${productoId}`);
 
-let cantidad = parseInt(inputCantidad.value);
+    if (!inputCantidad) return;
 
-if (!cantidad || cantidad <= 0) return;
+    let cantidad = parseInt(inputCantidad.value);
 
-            const itemEnCarrito = carrito.find(item => item.id === productoId);
-            if (itemEnCarrito) {
-                itemEnCarrito.cantidad += cantidad;
-            } else {
-                carrito.push({
-                    id: producto.id,
-                    nombre: producto.nombre,
-                    precio: producto.precio,
-                    foto: producto.foto, // CAMBIO: GUARDAR FOTO PARA CARRITO
-                    cantidad: cantidad
-                });
-            }
+    if (!cantidad || cantidad <= 0) return;
+
+    const itemEnCarrito = carrito.find(item => item.id === productoId);
+
+    if (itemEnCarrito) {
+        itemEnCarrito.cantidad += cantidad;
+    } else {
+        carrito.push({
+            id: producto.id,
+            nombre: producto.nombre,
+            precio: producto.precio,
+            foto: producto.foto,
+            cantidad: cantidad
+        });
+    }
+
+    guardarCarrito();
+    renderizarCarrito();
+    actualizarContadorCarrito();
+
+    Swal.fire({ 
+        toast: true, 
+        position: 'top-end', 
+        icon: 'success', 
+        title: '¡PRODUCTO AGREGADO!', 
+        showConfirmButton: false, 
+        timer: 1500 
+    });
+};
 
             guardarCarrito();
             renderizarCarrito();
