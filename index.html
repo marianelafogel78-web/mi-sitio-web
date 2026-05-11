@@ -612,13 +612,18 @@ margin-top: 10px;
         };
 
         const filtrarProductos = (categoria) => {
-            if (categoria === 'TODOS') {
-                renderizarProductos(productos);
-            } else {
-                const filtrados = productos.filter(p => p.categoria === categoria);
-                renderizarProductos(filtrados);
-            }
-        };
+    if (categoria === 'TODOS') {
+        renderizarProductos(productos);
+    } else {
+        const filtrados = productos.filter(p => p.categoria === categoria);
+        renderizarProductos(filtrados);
+    }
+
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+};
 
 const buscarProductos = () => {
 
