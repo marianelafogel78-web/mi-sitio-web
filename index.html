@@ -277,13 +277,36 @@
     font-size: 1.2em;
     letter-spacing: 2px;
 }
+
+.welcome-title {
+    font-size: 1.4em;
+    font-weight: 500;
+    color: white;
+    text-transform: lowercase;
+    letter-spacing: 1px;
+}
+
+.welcome-signature {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+
+    font-size: 0.75em;
+    color: rgba(255,255,255,0.35);
+
+    letter-spacing: 1px;
+}
     </style>
 </head>
 <body>
 <div id="welcome-screen">
     <img src="LOGO.png" alt="Logo" class="welcome-logo">
-    <h1>CATÁLOGO ELECTRÓNICA</h1>
+
+    <h1 class="welcome-title">catálogo electrónica</h1>
+
+    <div class="welcome-signature">APPSFOGEL</div>
 </div>
+
   <header style="
 background: linear-gradient(to bottom, #ffffff, #e8ecff);
 padding: 10px 20px 12px 20px;
@@ -414,9 +437,9 @@ box-sizing: border-box;
                      id="nombre-cliente-whatsapp" 
                      placeholder="INGRESE SU NOMBRE PARA EL PEDIDO"
                      oninput="guardarNombreCliente()"
-                     style="width: 100%; padding: 12px; margin-top: 5px; border: 1px solid var(--color-borde); border-radius: 4px;">
+                     style="width: 100%; padding: 9px; margin-top: 5px; border: 1px solid var(--color-borde); border-radius: 4px;">
 
-                <div style="margin-bottom: 20px; text-align: left;">
+                <div style="margin-bottom: 20px; margin-top: 12px; text-align: left;">
     <label for="aclaracion-pedido">
         ¿QUERÉS AGREGAR ALGUNA ACLARACIÓN O DETALLE PARA TU PEDIDO?:
     </label>
