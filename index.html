@@ -409,8 +409,32 @@ box-sizing: border-box;
                 <div id="resumen-carrito">
                     <div style="margin-bottom: 20px; text-align: left;">
                         <label for="nombre-cliente-whatsapp">A NOMBRE DE QUIEN HACEMOS EL PEDIDO?:</label>
-                        <input type="text" id="nombre-cliente-whatsapp" placeholder="INGRESE SU NOMBRE PARA EL PEDIDO" style="width: 100%; padding: 12px; margin-top: 5px; border: 1px solid var(--color-borde); border-radius: 4px;">
-                    </div>
+                        <input 
+                      type="text" 
+                     id="nombre-cliente-whatsapp" 
+                     placeholder="INGRESE SU NOMBRE PARA EL PEDIDO"
+                     oninput="guardarNombreCliente()"
+                     style="width: 100%; padding: 12px; margin-top: 5px; border: 1px solid var(--color-borde); border-radius: 4px;">
+
+                <div style="margin-bottom: 20px; text-align: left;">
+    <label for="aclaracion-pedido">
+        ¿QUERÉS AGREGAR ALGUNA ACLARACIÓN O DETALLE PARA TU PEDIDO?:
+    </label>
+
+    <textarea
+        id="aclaracion-pedido"
+        placeholder="EJ: COLOR DESEADO, HORARIO DE ENTREGA, CONSULTAS O DETALLES IMPORTANTES..."
+        style="
+        width: 100%;
+        padding: 12px;
+        margin-top: 5px;
+        border: 1px solid var(--color-borde);
+        border-radius: 4px;
+        min-height: 90px;
+        resize: vertical;
+        ">
+    </textarea>
+</div>
                     <p style="text-align: center; 
           color: var(--color-acento); 
           font-style: italic; 
@@ -806,6 +830,7 @@ const buscarProductos = () => {
 
         const generarMensajeWhatsApp = () => {
             const nombreCliente = document.getElementById('nombre-cliente-whatsapp').value.trim();
+            const aclaracionPedido = document.getElementById('aclaracion-pedido').value.trim();
             
             if (carrito.length === 0) {
                 Swal.fire({ title: "CARRITO VACÍO", text: "POR FAVOR, AGREGA PRODUCTOS PRIMERO.", icon: "info", confirmButtonColor: "#191970" });
@@ -828,6 +853,9 @@ const buscarProductos = () => {
 
             mensaje += `--------------------------\n`;
             mensaje += `*TOTAL DEL PEDIDO: $${totalPedido.toFixed(2)}*\n\n`;
+            if (aclaracionPedido !== "") {
+    mensaje += `*ACLARACIONES DEL PEDIDO:*\n${aclaracionPedido}\n\n`;
+}
             mensaje += `_QUEDO A LA ESPERA DE TU CONFIRMACION PARA COORDINAR ENTREGA_`;
 
             const url = `https://wa.me/${TELEFONO_WHATSAPP}?text=${encodeURIComponent(mensaje)}`;
