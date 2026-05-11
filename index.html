@@ -28,7 +28,7 @@
         }
 
         header {
-            background-color: var(--color-acento); 
+            background-color: white;
             padding: 20px; text-align: center;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
             margin-bottom: 20px;
@@ -88,16 +88,27 @@
         .carrito-item:last-child { border-bottom: none; }
         #resumen-carrito { margin-top: 20px; text-align: right; }
         #resumen-carrito p { font-size: 1.5em; font-weight: bold; color: var(--color-acento); }
-        #btn-comprar-whatsapp {
-            background-color: #25d366; color: white; border: none;
-            padding: 15px 30px; border-radius: 8px; font-size: 1.2em;
-            cursor: pointer; font-weight: bold;
-        }
-        #btn-vaciar-carrito {
-            background-color: #ff4d4d; color: white; border: none;
-            padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-right: 10px;
-        }
-
+       #btn-comprar-whatsapp {
+    background-color: white;
+    color: #191970;
+    border: 2px solid #191970;
+    padding: 8px 30px;
+    border-radius: 8px;
+    font-size: 1.2em;
+    cursor: pointer;
+    font-weight: bold;
+}
+        
+    #btn-vaciar-carrito {
+    background-color: white;
+    color: #191970 !important;
+    border: 2px solid #191970;
+    padding: 6px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-right: 10px;
+    font-weight: bold;
+}
         /* Pestañas (Tabs) */
         .tabs { 
             display: flex; justify-content: center; 
@@ -231,6 +242,40 @@
     transform: translateY(-100%) !important;
     transition: transform 0.4s ease-in-out !important;
 }
+
+.logo-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    padding: 6px 16px;
+    border: 1px solid rgba(25, 25, 112, 0.08);
+    border-radius: 14px;
+    background: white;
+}
+
+.logo-jm {
+    font-size: 4em;
+    font-weight: 900;
+    color: #191970;
+    line-height: 1;
+}
+
+.logo-texto {
+    color: #191970;
+    text-align: left;
+    font-weight: bold;
+    line-height: 1.1;
+}
+
+.logo-texto div:first-child {
+    font-size: 1.5em;
+}
+
+.logo-texto div:last-child {
+    font-size: 1.2em;
+    letter-spacing: 2px;
+}
     </style>
 </head>
 <body>
@@ -238,10 +283,24 @@
     <img src="LOGO.png" alt="Logo" class="welcome-logo">
     <h1>CATÁLOGO ELECTRÓNICA</h1>
 </div>
-   <header style="background-color: var(--color-acento); padding: 20px 20px 40px 20px; text-align: center; position: relative;">
-    <h1 style="margin: 0; font-size: 2.8em; color: white;">JM.ELECTRÓNICA</h1>
-    
-  
+  <header style="
+background: linear-gradient(to bottom, #ffffff, #e8ecff);
+padding: 10px 20px 12px 20px;
+position: relative;
+border-bottom: 2px solid #dcdcff;
+box-shadow: 0 4px 12px rgba(25, 25, 112, 0.12);
+">
+
+    <div class="logo-header">
+        <div class="logo-jm">JM</div>
+
+        <div class="logo-texto">
+            <div>ELECTRÓNICA</div>
+            <div>& ACCESORIOS</div>
+           
+        </div>
+    </div>
+
 </header>
 
     <main id="app-main">
@@ -476,6 +535,8 @@ box-sizing: border-box;
             
             const contenedoresAnteriores = productosSeccion.querySelectorAll('div:not([style*="margin-bottom"])');
             contenedoresAnteriores.forEach(c => c.remove());
+            const mensajesAnteriores = productosSeccion.querySelectorAll('p');
+mensajesAnteriores.forEach(m => m.remove());
 
             if (productosParaMostrar.length === 0) {
                 const emptyMsg = document.createElement('p');
