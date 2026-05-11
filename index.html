@@ -632,11 +632,23 @@ const buscarProductos = () => {
         .value
         .toLowerCase();
 
-    const filtrados = productos.filter(producto =>
-        producto.nombre.toLowerCase().includes(texto)
+    const empiezan = productos.filter(producto =>
+        producto.nombre.toLowerCase().startsWith(texto)
     );
 
+    const contienen = productos.filter(producto =>
+        producto.nombre.toLowerCase().includes(texto) &&
+        !producto.nombre.toLowerCase().startsWith(texto)
+    );
+
+    const filtrados = [...empiezan, ...contienen];
+
     renderizarProductos(filtrados);
+
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
 };
 
         const renderizarFiltros = () => {
